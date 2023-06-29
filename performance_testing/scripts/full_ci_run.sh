@@ -21,11 +21,12 @@ echo duration: "$duration"
 echo connections: "$connections"
 echo iterations: "$iterations"
 
-"$parent_path/setup_metallb.sh" || exit
+echo =====================================
+echo setup NSM prerequisites
+"$parent_path/nsm_prerequisites_setup.sh" > "$result_folder/nsm_prerequisites_setup.log" 2>&1 || exit
 
-"$parent_path/nsm_setup_dns.sh" || exit
-"$parent_path/nsm_setup_spire.sh" || exit
-
+echo =====================================
+echo run vl3 test
 "$parent_path/run_test_suite.sh" \
     vl3 \
     "$result_folder" \
@@ -34,12 +35,15 @@ echo iterations: "$iterations"
     "$parent_path/../use-cases/vl3/deploy.sh" \
     "$parent_path/../use-cases/vl3/clear.sh" \
     "$nsm_version" \
-    "$parent_path/../nsm" \
     "$qps_list" \
     "$duration" \
     "$connections" \
+    "$parent_path/nsm_deploy_setup.sh" \
+    "$parent_path/nsm_deploy_cleanup.sh" \
     || exit
 
+echo =====================================
+echo run k2wireguard2k test
 "$parent_path/run_test_suite.sh" \
     k2wireguard2k \
     "$result_folder" \
@@ -48,13 +52,15 @@ echo iterations: "$iterations"
     "$parent_path/../use-cases/k2wireguard2k/deploy.sh" \
     "$parent_path/../use-cases/k2wireguard2k/clear.sh" \
     "$nsm_version" \
-    "$parent_path/../nsm" \
     "$qps_list" \
     "$duration" \
     "$connections" \
+    "$parent_path/nsm_deploy_setup.sh" \
+    "$parent_path/nsm_deploy_cleanup.sh" \
     || exit
 
-"$parent_path/nsm_clear_spire.sh"
-"$parent_path/nsm_clear_dns.sh"
+echo =====================================
+echo cleanup NSM prerequisites
+"$parent_path/nsm_prerequisites_cleanup.sh" > "$result_folder/nsm_prerequisites_cleanup.log" 2>&1
 
 true

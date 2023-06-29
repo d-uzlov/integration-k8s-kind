@@ -15,7 +15,8 @@ if [ -z "$7" ]; then echo 7th arg 'test_duration' is missing; exit 1; fi
 if [ -z "$8" ]; then echo 8th arg 'deploy_script' is missing; exit 1; fi
 if [ -z "$9" ]; then echo 9th arg 'clear_script' is missing; exit 1; fi
 if [ -z "${10}" ]; then echo 10th arg 'nsm_version' is missing; exit 1; fi
-if [ -z "${11}" ]; then echo 11th arg 'nsm_deploy_folder' is missing; exit 1; fi
+if [ -z "${11}" ]; then echo 11th arg 'nsm_deploy_scipt' is missing; exit 1; fi
+if [ -z "${12}" ]; then echo 12th arg 'nsm_cleanup_scipt' is missing; exit 1; fi
 
 test_name=$1
 result_folder=$2
@@ -27,7 +28,8 @@ test_duration=$7
 deploy_script=$8
 clear_script=$9
 nsm_version=${10}
-nsm_deploy_folder=${11}
+nsm_deploy_scipt=${11}
+nsm_cleanup_scipt=${12}
 
 echo "test_name: $test_name"
 echo "result_folder: $result_folder"
@@ -39,7 +41,8 @@ echo "test_duration: $test_duration"
 echo "deploy_script: $deploy_script"
 echo "clear_script: $clear_script"
 echo "nsm_version: $nsm_version"
-echo "nsm_deploy_folder: $nsm_deploy_folder"
+echo "nsm_deploy_scipt: $nsm_deploy_scipt"
+echo "nsm_cleanup_scipt: $nsm_cleanup_scipt"
 
 echo ------
 
@@ -96,7 +99,7 @@ function runTest() {
         echo "round $i"
         test_full_name=$test_name-$config_name-$i
         echo deploying nsm...
-        "$nsm_deploy_folder/nsm_setup_nsm.sh" > "$deploy_logs/$test_full_name-deploy-nsm.log" "$nsm_version" 2>&1 || exit
+        "$nsm_deploy_scipt" > "$deploy_logs/$test_full_name-deploy-nsm.log" 2>&1 || exit
         echo deploying apps...
         "$deploy_script" > "$deploy_logs/$test_full_name-deploy-apps.log" "$nsm_version" 2>&1 || exit
         echo doing warmup run...
@@ -110,7 +113,7 @@ function runTest() {
         echo clearing apps...
         "$clear_script" > "$deploy_logs/$test_full_name-clear-apps.log" 2>&1
         echo clearing nsm...
-        "$nsm_deploy_folder/nsm_clear_nsm.sh" > "$deploy_logs/$test_full_name-clear-nsm.log" 2>&1
+        "$nsm_cleanup_scipt" > "$deploy_logs/$test_full_name-clear-nsm.log" 2>&1
         (exit "$result_code") || exit
     done
 }

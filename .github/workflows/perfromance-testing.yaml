@@ -42,9 +42,24 @@ jobs:
             echo CLUSTER${i}_CIDR="172.18.${i}.128/25" >> $GITHUB_ENV
         done
       working-directory: ${{ github.workspace }}/src/github.com/${{ github.repository }}
+    - name: Install gotestmd
+      run: |
+        ./performance_testing/scripts/generate-install.sh
+    - name: Clone deployments-k8s
+      run: |
+        cd ..
+        git clone --depth=1 https://github.com/networkservicemesh/deployments-k8s.git || exit
+        cd deployments-k8s
+        git fetch origin tag "$NSM_VERSION" --no-tags --depth=1 || exit
+        git checkout "$NSM_VERSION" || exit
+      env:
+        NSM_VERSION: ${{ github.ref_name }}
+    - name: Generate setup scripts
+      run: |
+        ./performance_testing/scripts/generate-scripts.sh ../deployments-k8s
     - name: Performance tests
       run: |
-        performance_testing/scripts/full_ci_run.sh "$NSM_VERSION" "$ARTIFACTS_DIR" "$QPS_LIST" "$DURATION" "$CONNECTIONS" "$ITERATIONS"
+        performance_testing/scripts/full_ci_run.sh "$NSM_VERSION" "$ARTIFACTS_DIR" "$QPS_LIST" "$DURATION" "$CONNECTIONS" "$ITERATIONS" "$DEPLOYMENTS_LOCATIONS"
       env:
         NSM_VERSION: ${{ github.ref_name }}
         ARTIFACTS_DIR: perf-test-results

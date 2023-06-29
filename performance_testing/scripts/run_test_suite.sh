@@ -12,10 +12,11 @@ if [ -z "$4" ]; then echo 4th arg 'test_url' is missing; exit 1; fi
 if [ -z "$5" ]; then echo 5th arg 'deploy_script' is missing; exit 1; fi
 if [ -z "$6" ]; then echo 6th arg 'clear_script' is missing; exit 1; fi
 if [ -z "$7" ]; then echo 7th arg 'nsm_version' is missing; exit 1; fi
-if [ -z "$8" ]; then echo 8th arg 'nsm_deploy_folder' is missing; exit 1; fi
-if [ -z "$9" ]; then echo 9th arg 'qps_list' is missing; exit 1; fi
-if [ -z "${10}" ]; then echo 10th arg 'duration' is missing; exit 1; fi
-if [ -z "${11}" ]; then echo 10th arg 'connections' is missing; exit 1; fi
+if [ -z "$8" ]; then echo 8th arg 'qps_list' is missing; exit 1; fi
+if [ -z "${9}" ]; then echo 9th arg 'duration' is missing; exit 1; fi
+if [ -z "${10}" ]; then echo 10th arg 'connections' is missing; exit 1; fi
+if [ -z "${11}" ]; then echo 11th arg 'nsm_deploy_scipt' is missing; exit 1; fi
+if [ -z "${12}" ]; then echo 12th arg 'nsm_cleanup_scipt' is missing; exit 1; fi
 
 test_name=test-$(TZ=UTC date +%F-T%H-%M-%S)-$1
 result_folder=$2/$test_name
@@ -24,10 +25,11 @@ test_url=$4
 deploy_script=$5
 clear_script=$6
 nsm_version=$7
-nsm_deploy_folder=$8
-qps_list=$9
-duration=${10}
-connections=${11}
+qps_list=$8
+duration=${9}
+connections=${10}
+nsm_deploy_scipt=${11}
+nsm_cleanup_scipt=${12}
 
 echo "test_name: $test_name"
 echo "result_folder: $result_folder"
@@ -36,10 +38,11 @@ echo "test_url: $test_url"
 echo "deploy_script: $deploy_script"
 echo "clear_script: $clear_script"
 echo "nsm_version: $nsm_version"
-echo "nsm_deploy_folder: $nsm_deploy_folder"
 echo "qps_list: $qps_list"
 echo "duration: $duration"
 echo "connections: $connections"
+echo "nsm_deploy_scipt: $nsm_deploy_scipt"
+echo "nsm_cleanup_scipt: $nsm_cleanup_scipt"
 
 mkdir -p "$result_folder" || exit
 
@@ -59,6 +62,7 @@ do
         "$deploy_script" \
         "$clear_script" \
         "$nsm_version" \
-        "$nsm_deploy_folder" \
+        "$nsm_deploy_scipt" \
+        "$nsm_cleanup_scipt" \
         || exit
 done
